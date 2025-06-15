@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khatian Data Entry - Professional</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- SheetJS for Excel Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        /* Custom styles for a better look and feel */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.5);
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease;
+        }
+        .table-auto th, .table-auto td {
+            padding: 12px 15px;
+            text-align: left;
+            white-space: nowrap;
+        }
+        .btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .nav-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+        }
+        .nav-btn.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: white;
+        }
+        .nav-btn:not(.active) {
+            background-color: #eef2ff; /* indigo-100 */
+            color: #4f46e5; /* indigo-600 */
+        }
+        /* Style for table borders */
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #e5e7eb; /* gray-200 */
+        }
+    </style>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100">
+
+    <!-- Auth Container -->
+    <div id="authContainer">
+        <!-- Login View -->
+        <div id="loginView" class="min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-8">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">Welcome Back</h2>
+                <p class="text-center text-gray-500 mb-8">Please login to your account</p>
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label for="username" class="block text-gray-700 text-sm font-bold mb-2">User ID</label>
+                        <input type="text" id="username" value="admin" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="password" value="password" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline btn">Log In</button>
+                </form>
+                <div class="text-center my-6">
+                    <span class="text-gray-500">Or</span>
+                </div>
+                <button id="showSignupBtn" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline btn">Create a new account</button>
+            </div>
+        </div>
+
+        <!-- Signup View -->
+        <div id="signupView" class="min-h-screen flex items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-8">
+                <h2 class="text-3xl font-bold text-center text-gray-800 mb-2">New User Sign Up</h2>
+                <p class="text-center text-gray-500 mb-8">Create an account to get started</p>
+                <form id="signupForm">
+                    <div class="mb-4">
+                        <label for="signupName" class="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                        <input type="text" id="signupName" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="signupUserId" class="block text-gray-700 text-sm font-bold mb-2">User ID</label>
+                        <input type="text" id="signupUserId" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <p id="userIdError" class="text-red-500 text-xs italic mt-1 hidden">User ID must be at least 3 characters.</p>
+                    </div>
+                     <div class="mb-4">
+                        <label for="signupEmail" class="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                        <input type="email" id="signupEmail" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                    </div>
+                    <div class="mb-6">
+                        <label for="signupPassword" class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" id="signupPassword" class="shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" required>
+                        <p id="passwordError" class="text-red-500 text-xs italic mt-1 hidden">Password must be at least 4 digits.</p>
+                    </div>
+                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg btn">Sign Up</button>
+                </form>
+                 <button id="showLoginBtn" class="w-full mt-4 text-center text-indigo-600 hover:underline">Already have an account? Log In</button>
+            </div>
+        </div>
+        
+         <!-- Verify Email View -->
+        <div id="verifyEmailView" class="min-h-screen flex items-center justify-center p-4 hidden">
+            <div class="w-full max-w-md bg-white rounded-xl shadow-2xl p-8 text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Verify Your Email</h2>
+                <p class="text-gray-500 mb-6">A verification code has been sent to your email. Please enter it below.</p>
+                <form id="verifyForm">
+                    <input type="text" id="verificationCode" placeholder="Enter 4-digit code" class="text-center tracking-widest text-2xl shadow-sm appearance-none border rounded-lg w-full py-3 px-4 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-indigo-500" maxlength="4" required>
+                    <button type="submit" class="w-full mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded-lg btn">Verify Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application Section -->
+    <div id="appSection" class="hidden">
+        <!-- Header -->
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">Khatian Management System</h1>
+            <div class="flex items-center gap-4">
+                 <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+                    <button id="homeBtn" class="nav-btn active"><i class="fas fa-home mr-2"></i>Home</button>
+                    <button id="entryStatusBtn" class="nav-btn"><i class="fas fa-chart-bar mr-2"></i>Entry Status</button>
+                 </div>
+                 <div class="w-px h-8 bg-gray-300"></div>
+                 <div class="flex items-center gap-3">
+                    <span id="loggedInUser" class="font-semibold text-gray-700"></span>
+                    <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg btn">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                 </div>
+            </div>
+        </header>
+
+        <!-- Home Page View -->
+        <main id="homeView" class="p-4 md:p-8">
+            <!-- Filter Section -->
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
+                 <h3 class="font-bold text-lg text-gray-700 mb-4 border-b pb-2">Search Khatian</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 items-end">
+                    <div>
+                        <label for="divisionFilter" class="block text-sm font-medium text-gray-700">Division</label>
+                        <select id="divisionFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"></select>
+                    </div>
+                    <div>
+                        <label for="upazilaFilter" class="block text-sm font-medium text-gray-700">Upazila</label>
+                        <select id="upazilaFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" disabled></select>
+                    </div>
+                    <div>
+                        <label for="mouzaFilter" class="block text-sm font-medium text-gray-700">Mouza</label>
+                        <select id="mouzaFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" disabled></select>
+                    </div>
+                    <div>
+                        <label for="searchBox" class="block text-sm font-medium text-gray-700">Search</label>
+                        <input type="text" id="searchBox" placeholder="Insert Khatian or Dag" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-400 rounded-md">
+                    </div>
+                     <button id="clearFilterBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md h-10 btn"><i class="fas fa-times mr-2"></i>Clear</button>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mb-8 flex flex-wrap gap-4">
+                <button id="newKhatianBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg btn"><i class="fas fa-plus mr-2"></i>New Khatian</button>
+                <button id="editKhatianBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg btn" disabled><i class="fas fa-edit mr-2"></i>Edit Khatian</button>
+                <button id="scanKhatianBtn" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-4 rounded-lg btn" disabled><i class="fas fa-scanner mr-2"></i>Scan Khatian</button>
+                <button id="exportDataBtn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg btn"><i class="fas fa-file-excel mr-2"></i>Export Data</button>
+            </div>
+
+            <!-- Data Table -->
+            <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
+                 <div id="tablePlaceholder" class="p-8 text-center text-gray-500">
+                    <i class="fas fa-folder-open fa-3x mb-4 text-gray-400"></i>
+                    <p>Please select Division, Upazila, and Mouza to view data.</p>
+                </div>
+                <table id="khatianTable" class="w-full table-auto hidden table-bordered">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="w-12">Select</th>
+                            <th>Khatian No</th>
+                            <th>RS No</th>
+                            <th>Revenue</th>
+                            <th>Mouza Name</th>
+                            <th>Upazila Name</th>
+                        </tr>
+                    </thead>
+                    <tbody id="khatianTableBody" class="divide-y"></tbody>
+                </table>
+            </div>
+        </main>
+
+        <!-- Entry Status View -->
+        <main id="entryStatusView" class="p-4 md:p-8 hidden">
+             <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h3 class="font-bold text-xl text-gray-800 mb-4 border-b pb-3">User Entry Status (Last 30 Days)</h3>
+                <div class="overflow-x-auto">
+                    <table id="entryStatusTable" class="w-full table-auto table-bordered">
+                        <!-- Header and body will be generated by JS -->
+                    </table>
+                </div>
+             </div>
+        </main>
+    </div>
+
+    <!-- New Khatian Modal -->
+    <div id="newKhatianModal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 modal-content transform scale-95 overflow-hidden">
+             <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+                 <h3 class="text-lg font-semibold" id="modalTitle">Create New Khatian Entry</h3>
+                <button id="closeModalBtn" class="text-indigo-200 hover:text-white"><i class="fas fa-times fa-lg"></i></button>
+            </div>
+            <div class="p-6" style="background-color: #F0F8FF;">
+                <form id="khatianForm">
+                    <div class="mb-4">
+                        <label for="khatianNo" class="block text-sm font-medium text-gray-700 mb-1">Khatian No <span class="text-red-500">*</span></label>
+                        <input type="text" id="khatianNo" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 px-3 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="rsNo" class="block text-sm font-medium text-gray-700 mb-1">RS No</label>
+                        <input type="text" id="rsNo" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 px-3 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500">
+                    </div>
+                    <div class="mb-4">
+                        <label for="revenue" class="block text-sm font-medium text-gray-700 mb-1">Revenue</label>
+                        <input type="text" id="revenue" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 px-3 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500">
+                    </div>
+                    <div class="mb-6">
+                        <label for="remarks" class="block text-sm font-medium text-gray-700 mb-1">Remarks</label>
+                        <textarea id="remarks" rows="3" class="block w-full shadow-sm sm:text-sm border-gray-300 rounded-md py-2 px-3 focus:ring-2 focus:ring-indigo-300 focus:border-indigo-500"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="flex justify-end gap-4 p-4" style="background-color: #F0F8FF; border-top: 1px solid #e5e7eb;">
+                <button type="button" id="cancelBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                <button type="submit" form="khatianForm" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg flex items-center">
+                    <i class="fas fa-check mr-2"></i>Create Khatian
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Confirmation Alert -->
+    <div id="customAlert" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-sm mx-4 text-center">
+            <i class="fas fa-question-circle text-yellow-500 text-4xl mb-4"></i>
+            <p id="alertMessage" class="text-lg text-gray-800 mb-6">Do you want to add new khatian?</p>
+            <div class="flex justify-center gap-4">
+                <button id="alertNoBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg">No</button>
+                <button id="alertYesBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg">Yes</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- DOM Elements ---
+            const authContainer = document.getElementById('authContainer');
+            const appSection = document.getElementById('appSection');
+
+            // Views
+            const loginView = document.getElementById('loginView');
+            const signupView = document.getElementById('signupView');
+            const verifyEmailView = document.getElementById('verifyEmailView');
+            const homeView = document.getElementById('homeView');
+            const entryStatusView = document.getElementById('entryStatusView');
+            
+            // Forms
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            const verifyForm = document.getElementById('verifyForm');
+            const khatianForm = document.getElementById('khatianForm');
+
+            // Buttons
+            const showSignupBtn = document.getElementById('showSignupBtn');
+            const showLoginBtn = document.getElementById('showLoginBtn');
+            const logoutBtn = document.getElementById('logoutBtn');
+            const homeBtn = document.getElementById('homeBtn');
+            const entryStatusBtn = document.getElementById('entryStatusBtn');
+            const newKhatianBtn = document.getElementById('newKhatianBtn');
+            const editKhatianBtn = document.getElementById('editKhatianBtn');
+            const scanKhatianBtn = document.getElementById('scanKhatianBtn');
+            const exportDataBtn = document.getElementById('exportDataBtn');
+            const clearFilterBtn = document.getElementById('clearFilterBtn');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const alertYesBtn = document.getElementById('alertYesBtn');
+            const alertNoBtn = document.getElementById('alertNoBtn');
+            
+            // Other Elements
+            const khatianTable = document.getElementById('khatianTable');
+            const khatianTableBody = document.getElementById('khatianTableBody');
+            const entryStatusTable = document.getElementById('entryStatusTable');
+            const tablePlaceholder = document.getElementById('tablePlaceholder');
+            const newKhatianModal = document.getElementById('newKhatianModal');
+            const customAlert = document.getElementById('customAlert');
+            const divisionFilter = document.getElementById('divisionFilter');
+            const upazilaFilter = document.getElementById('upazilaFilter');
+            const mouzaFilter = document.getElementById('mouzaFilter');
+            const searchBox = document.getElementById('searchBox');
+            const loggedInUserSpan = document.getElementById('loggedInUser');
+
+            // --- State and Mock Data ---
+            // In a real app, this data would come from a server/database.
+            const geoData = {
+                "Dhaka": { "Savar": ["Aminbazar", "Tetuljhora"], "Dhamrai": ["Kulla", "Amta"] },
+                "Chattogram": { "Sitakunda": ["Bhatiari", "Barabkunda"], "Hathazari": ["Fatehpur", "Mekhal"] }
+            };
+
+            let users = [
+                { id: 1, name: 'Admin User', userId: 'admin', password: 'password', email: 'admin@test.com' }
+            ];
+
+            let khatianData = [
+                { id: 1, khatianNo: '101', rsNo: 'RS-501', revenue: '5000', remarks: 'N/A', division: 'Dhaka', upazila: 'Savar', mouza: 'Aminbazar', enteredBy: 'admin', entryDate: '2025-06-14' },
+                { id: 2, khatianNo: '102', rsNo: 'RS-502', revenue: '6000', remarks: 'Paid', division: 'Dhaka', upazila: 'Savar', mouza: 'Aminbazar', enteredBy: 'admin', entryDate: '2025-06-15' }
+            ];
+            
+            let tempUser = null; // To hold user data during signup verification
+            let currentUser = null; // The currently logged-in user
+            let selectedKhatianId = null;
+
+            // --- Functions ---
+            const showView = (viewId) => {
+                [loginView, signupView, verifyEmailView].forEach(v => v.classList.add('hidden'));
+                document.getElementById(viewId).classList.remove('hidden');
+            };
+
+            const showPage = (pageId) => {
+                [homeView, entryStatusView].forEach(p => p.classList.add('hidden'));
+                [homeBtn, entryStatusBtn].forEach(b => b.classList.remove('active'));
+                
+                document.getElementById(pageId).classList.remove('hidden');
+                if (pageId === 'homeView') homeBtn.classList.add('active');
+                if (pageId === 'entryStatusView') entryStatusBtn.classList.add('active');
+            };
+
+            const populateDropdown = (selectElement, items, placeholder) => {
+                selectElement.innerHTML = `<option value="">${placeholder}</option>`;
+                items.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item;
+                    option.textContent = item;
+                    selectElement.appendChild(option);
+                });
+            };
+
+            const renderKhatianTable = () => {
+                const division = divisionFilter.value;
+                const upazila = upazilaFilter.value;
+                const mouza = mouzaFilter.value;
+                const searchTerm = searchBox.value.toLowerCase();
+
+                if (!division || !upazila || !mouza) {
+                    khatianTable.classList.add('hidden');
+                    tablePlaceholder.classList.remove('hidden');
+                    khatianTableBody.innerHTML = '';
+                    return;
+                }
+
+                khatianTable.classList.remove('hidden');
+                tablePlaceholder.classList.add('hidden');
+
+                let filteredData = khatianData.filter(k => 
+                    k.division === division && k.upazila === upazila && k.mouza === mouza &&
+                    (k.khatianNo.toLowerCase().includes(searchTerm) || (k.rsNo && k.rsNo.toLowerCase().includes(searchTerm)))
+                );
+
+                khatianTableBody.innerHTML = '';
+                if (filteredData.length === 0) {
+                    khatianTableBody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500 py-4">No Khatian found.</td></tr>`;
+                } else {
+                    filteredData.forEach(k => {
+                        khatianTableBody.innerHTML += `
+                            <tr class="hover:bg-gray-50">
+                                <td><input type="radio" name="khatianSelect" value="${k.id}" class="form-radio h-4 w-4 text-indigo-600"></td>
+                                <td>${k.khatianNo}</td><td>${k.rsNo || '-'}</td><td>${k.revenue || '-'}</td>
+                                <td>${k.mouza}</td><td>${k.upazila}</td>
+                            </tr>`;
+                    });
+                }
+                attachRadioListeners();
+                selectedKhatianId = null;
+                editKhatianBtn.disabled = true;
+                scanKhatianBtn.disabled = true;
+            };
+            
+            const attachRadioListeners = () => {
+                 document.querySelectorAll('input[name="khatianSelect"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        selectedKhatianId = parseInt(e.target.value);
+                        editKhatianBtn.disabled = false;
+                        scanKhatianBtn.disabled = false;
+                    });
+                });
+            }
+
+            const renderEntryStatusTable = () => {
+                // 1. Get all user IDs
+                const allUserIds = [...new Set(users.map(u => u.userId))].sort();
+
+                // 2. Filter entries for the last 30 days
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                const recentEntries = khatianData.filter(k => new Date(k.entryDate) >= thirtyDaysAgo);
+
+                // 3. Group entries by date and then by user
+                const entriesByDate = recentEntries.reduce((acc, entry) => {
+                    const date = entry.entryDate;
+                    const userId = entry.enteredBy;
+                    if (!acc[date]) acc[date] = {};
+                    if (!acc[date][userId]) acc[date][userId] = 0;
+                    acc[date][userId]++;
+                    return acc;
+                }, {});
+
+                const uniqueDates = Object.keys(entriesByDate).sort((a, b) => new Date(b) - new Date(a));
+
+                // 4. Build HTML for the table
+                let tableHtml = `<thead class="bg-gray-100"><tr><th>Date</th>`;
+                allUserIds.forEach(userId => {
+                    tableHtml += `<th>${userId}</th>`;
+                });
+                tableHtml += `</tr></thead><tbody class="divide-y">`;
+
+                if (uniqueDates.length === 0) {
+                    tableHtml += `<tr><td colspan="${allUserIds.length + 1}" class="text-center text-gray-500 py-4">No entries in the last 30 days.</td></tr>`;
+                } else {
+                    uniqueDates.forEach(date => {
+                        tableHtml += `<tr class="hover:bg-gray-50">`;
+                        tableHtml += `<td>${new Date(date).toLocaleDateString('en-GB')}</td>`;
+                        allUserIds.forEach(userId => {
+                            const count = entriesByDate[date][userId] || 0;
+                            tableHtml += `<td class="text-center">${count > 0 ? count : '-'}</td>`;
+                        });
+                        tableHtml += `</tr>`;
+                    });
+                }
+
+                tableHtml += `</tbody>`;
+                entryStatusTable.innerHTML = tableHtml;
+            };
+
+            const openModal = () => {
+                khatianForm.reset();
+                newKhatianModal.classList.remove('hidden');
+                newKhatianModal.classList.add('flex');
+                setTimeout(() => newKhatianModal.querySelector('.modal-content').classList.remove('scale-95'), 10);
+            };
+
+            const closeModal = () => {
+                newKhatianModal.querySelector('.modal-content').classList.add('scale-95');
+                setTimeout(() => newKhatianModal.classList.add('hidden'), 300);
+            };
+            
+            const showAlert = () => {
+                customAlert.classList.remove('hidden');
+                customAlert.classList.add('flex');
+            };
+
+            const hideAlert = () => {
+                customAlert.classList.add('hidden');
+            };
+            
+            const clearFilters = () => {
+                divisionFilter.value = '';
+                upazilaFilter.innerHTML = '';
+                upazilaFilter.disabled = true;
+                mouzaFilter.innerHTML = '';
+                mouzaFilter.disabled = true;
+                searchBox.value = '';
+                renderKhatianTable();
+            };
+            
+            const handleLogout = () => {
+                currentUser = null;
+                appSection.classList.add('hidden');
+                authContainer.classList.remove('hidden');
+                showView('loginView');
+            }
+
+            // --- Initial Setup ---
+            populateDropdown(divisionFilter, Object.keys(geoData), 'Select Division');
+            
+            // --- Event Listeners ---
+            showSignupBtn.addEventListener('click', () => showView('signupView'));
+            showLoginBtn.addEventListener('click', () => showView('loginView'));
+            
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const userId = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const user = users.find(u => u.userId === userId && u.password === password);
+                if (user) {
+                    currentUser = user;
+                    loggedInUserSpan.textContent = `Hi, ${currentUser.name}`;
+                    authContainer.classList.add('hidden');
+                    appSection.classList.remove('hidden');
+                    showPage('homeView');
+                    renderKhatianTable();
+                } else {
+                    alert('Invalid credentials.');
+                }
+            });
+
+            signupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const name = document.getElementById('signupName').value;
+                const userId = document.getElementById('signupUserId').value;
+                const email = document.getElementById('signupEmail').value;
+                const password = document.getElementById('signupPassword').value;
+
+                // Validation
+                const userIdError = document.getElementById('userIdError');
+                const passwordError = document.getElementById('passwordError');
+                let isValid = true;
+                userIdError.classList.add('hidden');
+                passwordError.classList.add('hidden');
+
+                if(userId.length < 3) {
+                    userIdError.classList.remove('hidden');
+                    isValid = false;
+                } 
+                if(password.length < 4) {
+                    passwordError.classList.remove('hidden');
+                    isValid = false;
+                }
+                if(users.some(u => u.userId === userId)) {
+                    alert('User ID already exists. Please choose another one.');
+                    isValid = false;
+                }
+                if (!isValid) return;
+
+                tempUser = { name, userId, password, email };
+                alert(`DEMO: A verification code has been sent to ${email}.\n\nTHE CODE IS: 1234`);
+                showView('verifyEmailView');
+            });
+
+            verifyForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const code = document.getElementById('verificationCode').value;
+                if(code === '1234') { // Simulated verification code
+                    users.push({ id: users.length + 1, ...tempUser });
+                    tempUser = null;
+                    alert('Account created successfully! Please log in.');
+                    showView('loginView');
+                    signupForm.reset();
+                    verifyForm.reset();
+                } else {
+                    alert('Invalid verification code.');
+                }
+            });
+
+            logoutBtn.addEventListener('click', handleLogout);
+            homeBtn.addEventListener('click', () => showPage('homeView'));
+            entryStatusBtn.addEventListener('click', () => {
+                renderEntryStatusTable();
+                showPage('entryStatusView');
+            });
+            
+            divisionFilter.addEventListener('change', () => {
+                const division = divisionFilter.value;
+                upazilaFilter.disabled = !division;
+                if (division) {
+                    populateDropdown(upazilaFilter, Object.keys(geoData[division] || {}), 'Select Upazila');
+                } else {
+                    upazilaFilter.innerHTML = '';
+                }
+                mouzaFilter.innerHTML = '';
+                mouzaFilter.disabled = true;
+                renderKhatianTable();
+            });
+
+            upazilaFilter.addEventListener('change', () => {
+                const division = divisionFilter.value;
+                const upazila = upazilaFilter.value;
+                mouzaFilter.disabled = !upazila;
+                if (upazila) {
+                    populateDropdown(mouzaFilter, geoData[division]?.[upazila] || [], 'Select Mouza');
+                } else {
+                    mouzaFilter.innerHTML = '';
+                }
+                renderKhatianTable();
+            });
+
+            mouzaFilter.addEventListener('change', renderKhatianTable);
+            searchBox.addEventListener('input', renderKhatianTable);
+            clearFilterBtn.addEventListener('click', clearFilters);
+
+            newKhatianBtn.addEventListener('click', () => {
+                 if (!divisionFilter.value || !upazilaFilter.value || !mouzaFilter.value) {
+                    alert('Please select Division, Upazila, and Mouza first.');
+                    return;
+                }
+                showAlert();
+            });
+            
+            alertYesBtn.addEventListener('click', () => { hideAlert(); openModal(); });
+            alertNoBtn.addEventListener('click', hideAlert);
+            closeModalBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            
+            khatianForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                const newKhatian = {
+                    id: khatianData.length > 0 ? Math.max(...khatianData.map(k => k.id)) + 1 : 1,
+                    khatianNo: document.getElementById('khatianNo').value,
+                    rsNo: document.getElementById('rsNo').value,
+                    revenue: document.getElementById('revenue').value,
+                    remarks: document.getElementById('remarks').value,
+                    division: divisionFilter.value,
+                    upazila: upazilaFilter.value,
+                    mouza: mouzaFilter.value,
+                    enteredBy: currentUser.userId,
+                    entryDate: today
+                };
+                khatianData.push(newKhatian);
+                closeModal();
+                renderKhatianTable();
+            });
+
+            editKhatianBtn.addEventListener('click', () => {
+                if(selectedKhatianId) {
+                    alert(`Functionality to edit Khatian ID: ${selectedKhatianId} would be here.`);
+                }
+            });
+
+            scanKhatianBtn.addEventListener('click', () => {
+                if(selectedKhatianId) {
+                     alert(`Functionality to upload scan for Khatian ID: ${selectedKhatianId} would be here.`);
+                }
+            });
+
+            exportDataBtn.addEventListener('click', () => {
+                const division = divisionFilter.value;
+                const upazila = upazilaFilter.value;
+                const mouza = mouzaFilter.value;
+                if (!division || !upazila || !mouza) {
+                    alert('Please select criteria to export data.');
+                    return;
+                }
+                const dataToExport = khatianData
+                    .filter(k => k.division === division && k.upazila === upazila && k.mouza === mouza)
+                    .map(k => ({ 'Khatian No': k.khatianNo, 'RS No': k.rsNo, 'Revenue': k.revenue, 'Mouza': k.mouza, 'Upazila': k.upazila, 'Entered By': k.enteredBy, 'Date': k.entryDate }));
+
+                if(dataToExport.length === 0) {
+                    alert('No data to export.'); return;
+                }
+                const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Khatian Data");
+                XLSX.writeFile(workbook, `Khatian_Data_${division}_${upazila}_${mouza}.xlsx`);
+            });
+        });
+    </script>
+</body>
+</html>
