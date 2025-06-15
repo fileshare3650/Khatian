@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <!-- Choices.js CSS for searchable dropdowns -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css"/>
     <!-- SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
@@ -51,6 +53,27 @@
         /* Style for table borders */
         .table-bordered th, .table-bordered td {
             border: 1px solid #e5e7eb; /* gray-200 */
+        }
+        /* Choices.js Customization */
+        .choices__inner {
+            background-color: white;
+            border: 2px solid #d1d5db; /* border-gray-300 */
+            border-radius: 0.375rem; /* rounded-md */
+            height: 42px; /* Set fixed height for alignment */
+            padding-left: 1rem;
+        }
+        .is-focused .choices__inner {
+            border-color: #4f46e5 !important;
+        }
+        .choices[data-type*="select-one"]::after {
+            right: 15.5px;
+        }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #4f46e5;
+        }
+        /* Hide placeholder from dropdown list */
+        .choices__list--dropdown .choices__item[data-value=""] {
+            display: none;
         }
     </style>
     <!-- Google Fonts -->
@@ -116,7 +139,7 @@
     <div id="appSection" class="hidden">
         <!-- Header -->
         <header class="bg-white shadow-md">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 p-4 flex justify-between items-center">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 p-4 flex justify-between items-center">
                 <h1 class="text-2xl font-bold text-gray-800">Khatian Management System</h1>
                 <div class="flex items-center gap-4">
                      <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
@@ -134,30 +157,30 @@
             </div>
         </header>
 
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6">
             <!-- Home Page View -->
             <main id="homeView">
                 <!-- Filter Section -->
                 <div class="bg-white p-6 rounded-xl shadow-lg mb-8">
                      <h3 class="font-bold text-lg text-gray-700 mb-4 border-b pb-2">Search Khatian</h3>
                     <div class="flex flex-wrap items-end gap-4">
-                        <div class="flex-1 min-w-[180px]">
-                            <label for="divisionFilter" class="block text-sm font-medium text-gray-700">Division</label>
-                            <select id="divisionFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 border-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"></select>
+                        <div class="flex-1 min-w-[200px]">
+                            <label for="districtFilter" class="block text-sm font-medium text-gray-700 mb-1">District</label>
+                            <select id="districtFilter"></select>
                         </div>
-                        <div class="flex-1 min-w-[180px]">
-                            <label for="upazilaFilter" class="block text-sm font-medium text-gray-700">Upazila</label>
-                            <select id="upazilaFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 border-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" disabled></select>
+                        <div class="flex-1 min-w-[200px]">
+                            <label for="upazilaFilter" class="block text-sm font-medium text-gray-700 mb-1">Upazila</label>
+                            <select id="upazilaFilter" disabled></select>
                         </div>
-                        <div class="flex-1 min-w-[180px]">
-                            <label for="mouzaFilter" class="block text-sm font-medium text-gray-700">Mouza</label>
-                            <select id="mouzaFilter" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 border-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" disabled></select>
+                        <div class="flex-1 min-w-[200px]">
+                            <label for="mouzaFilter" class="block text-sm font-medium text-gray-700 mb-1">Mouza</label>
+                            <select id="mouzaFilter" disabled></select>
                         </div>
-                        <div class="flex-1 min-w-[180px]">
-                            <label for="searchBox" class="block text-sm font-medium text-gray-700">Search</label>
-                            <input type="text" id="searchBox" placeholder="Insert Khatian or Dag" class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 border-2 rounded-md h-10 px-3">
+                        <div class="flex-1 min-w-[200px]">
+                            <label for="searchBox" class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                            <input type="text" id="searchBox" placeholder="Insert Khatian or Dag" class="h-[42px] focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 border-2 rounded-md px-3">
                         </div>
-                         <button id="clearFilterBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md h-10 btn"><i class="fas fa-times mr-2"></i>Clear</button>
+                         <button id="clearFilterBtn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md h-[42px] btn"><i class="fas fa-times mr-2"></i>Clear</button>
                     </div>
                 </div>
     
@@ -173,7 +196,7 @@
                 <div class="bg-white rounded-xl shadow-lg overflow-x-auto">
                      <div id="tablePlaceholder" class="p-8 text-center text-gray-500">
                         <i class="fas fa-folder-open fa-3x mb-4 text-gray-400"></i>
-                        <p>Please select Division, Upazila, and Mouza to view data.</p>
+                        <p>Please select District, Upazila, and Mouza to view data.</p>
                     </div>
                     <table id="khatianTable" class="w-full table-auto hidden table-bordered">
                         <thead class="bg-gray-100">
@@ -253,7 +276,8 @@
         </div>
     </div>
 
-
+    <!-- Choices.js script for searchable dropdowns -->
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // --- DOM Elements ---
@@ -294,17 +318,77 @@
             const tablePlaceholder = document.getElementById('tablePlaceholder');
             const newKhatianModal = document.getElementById('newKhatianModal');
             const customAlert = document.getElementById('customAlert');
-            const divisionFilter = document.getElementById('divisionFilter');
-            const upazilaFilter = document.getElementById('upazilaFilter');
-            const mouzaFilter = document.getElementById('mouzaFilter');
+            const districtFilterEl = document.getElementById('districtFilter');
+            const upazilaFilterEl = document.getElementById('upazilaFilter');
+            const mouzaFilterEl = document.getElementById('mouzaFilter');
             const searchBox = document.getElementById('searchBox');
             const loggedInUserSpan = document.getElementById('loggedInUser');
 
             // --- State and Mock Data ---
-            // In a real app, this data would come from a server/database.
-            const geoData = {
-                "Dhaka": { "Savar": ["Aminbazar", "Tetuljhora"], "Dhamrai": ["Kulla", "Amta"] },
-                "Chattogram": { "Sitakunda": ["Bhatiari", "Barabkunda"], "Hathazari": ["Fatehpur", "Mekhal"] }
+             const geoData = {
+                "Bagerhat": { "Bagerhat Sadar": [], "Chitalmari": [], "Fakirhat": [], "Kachua": [], "Mollahat": [], "Mongla": [], "Morrelganj": [], "Rampal": [], "Sarankhola": [] },
+                "Bandarban": { "Bandarban Sadar": [], "Thanchi": [], "Rowangchhari": [], "Lama": [], "Ruma": [], "Alikadam": [], "Naikhongchhari": [] },
+                "Barguna": { "Amtali": [], "Barguna Sadar": [], "Betagi": [], "Patharghata": [], "Taltali": [] },
+                "Barishal": { "Agailjhara": [], "Bakerganj": [], "Barishal Sadar": [], "Banaripara": [], "Gournadi": [], "Hizla": [], "Mehendiganj": [], "Muladi": [], "Wazirpur": [] },
+                "Bhola": { "Bhola Sadar": [], "Burhanuddin": [], "Char Fasson": [], "Daulatkhan": [], "Lalmohan": [], "Manpura": [], "Tazumuddin": [] },
+                "Bogra": { "Adamdighi": [], "Bogra Sadar": [], "Dhunat": [], "Dhupchanchia": [], "Gabtali": [], "Kahaloo": [], "Nandigram": [], "Sariakandi": [], "Shajahanpur": [], "Sherpur": [], "Shibganj": [], "Sonatala": [] },
+                "Brahmanbaria": { "Akhaura": [], "Ashuganj": [], "Bancharampur": [], "Bijoynagar": [], "Brahmanbaria Sadar": [], "Kasba": [], "Nabinagar": [], "Nasirnagar": [], "Sarail": [] },
+                "Chandpur": { "Chandpur Sadar": [], "Faridganj": [], "Haimchar": [], "Hajiganj": [], "Kachua": [], "Matlab Dakshin": [], "Matlab Uttar": [], "Shahrasti": [] },
+                "Chapai Nawabganj": { "Bholahat": [], "Gomastapur": [], "Nachole": [], "Chapai Nawabganj Sadar": [], "Shibganj": [] },
+                "Chattogram": { "Anwara": [], "Banshkhali": [], "Boalkhali": [], "Chandanaish": [], "Fatikchhari": [], "Hathazari": [], "Karnaphuli": [], "Lohagara": [], "Mirsharai": [], "Patiya": [], "Rangunia": [], "Raozan": [], "Sandwip": [], "Satkania": [], "Sitakunda": [] },
+                "Chuadanga": { "Alamdanga": [], "Chuadanga Sadar": [], "Damurhuda": [], "Jibannagar": [] },
+                "Cumilla": { "Barura": [], "Brahmanpara": [], "Burichang": [], "Chandina": [], "Chauddagram": [], "Cumilla Sadar": [], "Daudkandi": [], "Debidwar": [], "Homna": [], "Laksam": [], "Lalmai": [], "Meghna": [], "Monohorgonj": [], "Muradnagar": [], "Nangalkot": [], "Titas": [] },
+                "Cox's Bazar": { "Chakaria": [], "Cox's Bazar Sadar": [], "Kutubdia": [], "Maheshkhali": [], "Pekua": [], "Ramu": [], "Teknaf": [], "Ukhia": [] },
+                "Dhaka": { "Dhamrai": ["Amta", "Kulla"], "Dohar": [], "Keraniganj": [], "Nawabganj": [], "Savar": ["Aminbazar", "Tetuljhora"] },
+                "Dinajpur": { "Biral": [], "Birampur": [], "Birganj": [], "Bochaganj": [], "Chirirbandar": [], "Dinajpur Sadar": [], "Phulbari": [], "Ghoraghat": [], "Hakimpur": [], "Kaharole": [], "Khansama": [], "Nawabganj": [], "Parbatipur": [] },
+                "Faridpur": { "Alfadanga": [], "Bhanga": [], "Boalmari": [], "Charbhadrasan": [], "Faridpur Sadar": [], "Madhukhali": [], "Nagarkanda": [], "Sadarpur": [] },
+                "Feni": { "Chhagalnaiya": [], "Daganbhuiyan": [], "Feni Sadar": [], "Fulgazi": [], "Parshuram": [], "Sonagazi": [] },
+                "Gaibandha": { "Phulchhari": [], "Gaibandha Sadar": [], "Gobindaganj": [], "Palashbari": [], "Sadullapur": [], "Sughatta": [], "Sundarganj": [] },
+                "Gazipur": { "Gazipur Sadar": [], "Kaliakair": [], "Kaliganj": [], "Kapasia": [], "Sreepur": [] },
+                "Gopalganj": { "Gopalganj Sadar": [], "Kashiani": [], "Kotalipara": [], "Muksudpur": [], "Tungipara": [] },
+                "Habiganj": { "Ajmiriganj": [], "Bahubal": [], "Baniachong": [], "Chunarughat": [], "Habiganj Sadar": [], "Lakhai": [], "Madhabpur": [], "Nabiganj": [] },
+                "Jamalpur": { "Baksiganj": [], "Dewanganj": [], "Islampur": [], "Jamalpur Sadar": [], "Madarganj": [], "Melandaha": [], "Sarishabari": [] },
+                "Jashore": { "Abhaynagar": [], "Bagherpara": [], "Chaugachha": [], "Jashore Sadar": [], "Jhikargachha": [], "Keshabpur": [], "Manirampur": [], "Sharsha": [] },
+                "Jhalokati": { "Jhalokati Sadar": [], "Kathalia": [], "Nalchity": [], "Rajapur": [] },
+                "Jhenaidah": { "Harinakundu": [], "Jhenaidah Sadar": [], "Kaliganj": [], "Kotchandpur": [], "Maheshpur": [], "Shailkupa": [] },
+                "Joypurhat": { "Akkelpur": [], "Joypurhat Sadar": [], "Kalai": [], "Khetlal": [], "Panchbibi": [] },
+                "Khagrachhari": { "Dighinala": [], "Khagrachhari Sadar": [], "Lakshmichhari": [], "Mahalchhari": [], "Manikchhari": [], "Matiranga": [], "Panchhari": [], "Ramgarh": [] },
+                "Khulna": { "Batiaghata": [], "Dacope": [], "Dighalia": [], "Dumuria": [], "Khulna Sadar": [], "Koyra": [], "Paikgachha": [], "Phultala": [], "Rupsha": [], "Terokhada": [] },
+                "Kishoreganj": { "Austagram": [], "Bajitpur": [], "Bhairab": [], "Hossainpur": [], "Itna": [], "Karimganj": [], "Katiadi": [], "Kishoreganj Sadar": [], "Kuliarchar": [], "Mithamain": [], "Nikli": [], "Pakundia": [], "Tarail": [] },
+                "Kurigram": { "Bhurungamari": [], "Char Rajibpur": [], "Chilmari": [], "Kurigram Sadar": [], "Nageshwari": [], "Phulbari": [], "Rajarhat": [], "Rowmari": [], "Ulipur": [] },
+                "Kushtia": { "Bheramara": [], "Daulatpur": [], "Khoksa": [], "Kumarkhali": [], "Kushtia Sadar": [], "Mirpur": [] },
+                "Lakshmipur": { "Kamalnagar": [], "Lakshmipur Sadar": [], "Raipur": [], "Ramganj": [], "Ramgati": [] },
+                "Lalmonirhat": { "Aditmari": [], "Hatibandha": [], "Kaliganj": [], "Lalmonirhat Sadar": [], "Patgram": [] },
+                "Madaripur": { "Dasar": [], "Kalkini": [], "Madaripur Sadar": [], "Rajoir": [], "Shibchar": [] },
+                "Magura": { "Magura Sadar": [], "Mohammadpur": [], "Shalikha": [], "Sreepur": [] },
+                "Manikganj": { "Daulatpur": [], "Ghior": [], "Harirampur": [], "Manikganj Sadar": [], "Saturia": [], "Shivalaya": [], "Singair": [] },
+                "Moulvibazar": { "Barlekha": [], "Juri": [], "Kamalganj": [], "Kulaura": [], "Moulvibazar Sadar": [], "Rajnagar": [], "Sreemangal": [] },
+                "Munshiganj": { "Gazaria": [], "Lohajang": [], "Munshiganj Sadar": [], "Sirajdikhan": [], "Sreenagar": [], "Tongibari": [] },
+                "Mymensingh": { "Bhaluka": [], "Dhobaura": [], "Fulbaria": [], "Gaffargaon": [], "Gouripur": [], "Haluaghat": [], "Ishwarganj": [], "Muktagachha": [], "Mymensingh Sadar": [], "Nandail": [], "Phulpur": [], "Tarakanda": [], "Trishal": [] },
+                "Naogaon": { "Atrai": [], "Badalgachhi": [], "Dhamoirhat": [], "Manda": [], "Mohadevpur": [], "Naogaon Sadar": [], "Niamatpur": [], "Patnitala": [], "Porsha": [], "Raninagar": [], "Sapahar": [] },
+                "Narail": { "Kalia": [], "Lohagara": [], "Narail Sadar": [] },
+                "Narayanganj": { "Araihazar": [], "Bandar": [], "Narayanganj Sadar": [], "Rupganj": [], "Sonargaon": [] },
+                "Narsingdi": { "Belabo": [], "Monohardi": [], "Narsingdi Sadar": [], "Palash": [], "Raipura": [], "Shibpur": [] },
+                "Natore": { "Bagatipara": [], "Baraigram": [], "Gurudaspur": [], "Lalpur": [], "Naldanga": [], "Natore Sadar": [], "Singra": [] },
+                "Netrokona": { "Atpara": [], "Barhatta": [], "Durgapur": [], "Kalmakanda": [], "Kendua": [], "Khaliajuri": [], "Madan": [], "Mohanganj": [], "Netrokona Sadar": [], "Purbadhala": [] },
+                "Nilphamari": { "Dimla": [], "Domar": [], "Jaldhaka": [], "Kishoreganj": [], "Nilphamari Sadar": [], "Syedpur": [] },
+                "Noakhali": { "Begumganj": [], "Chatkhil": [], "Companyganj": [], "Hatiya": [], "Kabirhat": [], "Noakhali Sadar": [], "Senbagh": [], "Sonaimuri": [], "Subarnachar": [] },
+                "Pabna": { "Atgharia": [], "Bera": [], "Bhangura": [], "Chatmohar": [], "Faridpur": [], "Ishwardi": [], "Pabna Sadar": [], "Santhia": [], "Sujanagar": [] },
+                "Panchagarh": { "Atwari": [], "Boda": [], "Debiganj": [], "Panchagarh Sadar": [], "Tetulia": [] },
+                "Patuakhali": { "Bauphal": [], "Dashmina": [], "Dumki": [], "Galachipa": [], "Kalapara": [], "Mirzaganj": [], "Patuakhali Sadar": [], "Rangabali": [] },
+                "Pirojpur": { "Bhandaria": [], "Indurkani": [], "Kawkhali": [], "Mathbaria": [], "Nazirpur": [], "Nesarabad": [], "Pirojpur Sadar": [] },
+                "Rajbari": { "Baliakandi": [], "Goalandaghat": [], "Kalukhali": [], "Pangsha": [], "Rajbari Sadar": [] },
+                "Rajshahi": { "Bagha": [], "Bagmara": [], "Charghat": [], "Durgapur": [], "Godagari": [], "Mohanpur": [], "Paba": [], "Puthia": [], "Tanore": [] },
+                "Rangamati": { "Bagaichhari": [], "Barkal": [], "Belaichhari": [], "Juraichhari": [], "Kaptai": [], "Langadu": [], "Naniarchar": [], "Rajasthali": [], "Rangamati Sadar": [] },
+                "Rangpur": { "Badarganj": [], "Gangachhara": [], "Kaunia": [], "Mithapukur": [], "Pirgachha": [], "Pirganj": [], "Rangpur Sadar": [], "Taraganj": [] },
+                "Satkhira": { "Assasuni": [], "Debhata": [], "Kalaroa": [], "Kaliganj": [], "Satkhira Sadar": [], "Shyamnagar": [], "Tala": [] },
+                "Shariatpur": { "Bhedarganj": [], "Damudya": [], "Gosairhat": [], "Naria": [], "Shariatpur Sadar": [], "Zajira": [] },
+                "Sherpur": { "Jhenaigati": [], "Nakla": [], "Nalitabari": [], "Sherpur Sadar": [], "Sreebardi": [] },
+                "Sirajganj": { "Belkuchi": [], "Chauhali": [], "Kamarkhanda": [], "Kazipur": [], "Raiganj": [], "Shahjadpur": [], "Sirajganj Sadar": [], "Tarash": [], "Ullahpara": [] },
+                "Sunamganj": { "Bishwambarpur": [], "Chhatak": [], "Derai": [], "Dharampasha": [], "Dowarabazar": [], "Jagannathpur": [], "Jamalganj": [], "Sullah": [], "Sunamganj Sadar": [], "Tahirpur": [] },
+                "Sylhet": { "Balaganj": [], "Beanibazar": [], "Bishwanath": [], "Companiganj": [], "Dakshin Surma": [], "Fenchuganj": [], "Golapganj": [], "Gowainghat": [], "Jaintiapur": [], "Kanaighat": [], "Sylhet Sadar": [], "Zakiganj": [] },
+                "Tangail": { "Basail": [], "Bhuapur": [], "Delduar": [], "Dhanbari": [], "Ghatail": [], "Gopalpur": [], "Kalihati": [], "Madhupur": [], "Mirzapur": [], "Nagarpur": [], "Sakhipur": [], "Tangail Sadar": [] },
+                "Thakurgaon": { "Baliadangi": [], "Haripur": [], "Pirganj": [], "Ranisankail": [], "Thakurgaon Sadar": [] }
             };
 
             let users = [
@@ -312,12 +396,24 @@
             ];
 
             let khatianData = [
-                { id: 1, khatianNo: '101', rsNo: 'RS-501', revenue: '5000', remarks: 'N/A', division: 'Dhaka', upazila: 'Savar', mouza: 'Aminbazar', enteredBy: 'admin', entryDate: '2025-06-14' },
-                { id: 2, khatianNo: '102', rsNo: 'RS-502', revenue: '6000', remarks: 'Paid', division: 'Dhaka', upazila: 'Savar', mouza: 'Aminbazar', enteredBy: 'admin', entryDate: '2025-06-15' }
+                { id: 1, khatianNo: '101', rsNo: 'RS-501', revenue: '5000', remarks: 'N/A', district: 'Dhaka', upazila: 'Savar', mouza: 'Aminbazar', enteredBy: 'admin', entryDate: '2025-06-14' },
+                { id: 2, khatianNo: '102', rsNo: 'RS-502', revenue: '6000', remarks: 'Paid', district: 'Dhaka', upazila: 'Savar', mouza: 'Aminbazar', enteredBy: 'admin', entryDate: '2025-06-15' }
             ];
             
-            let currentUser = null; // The currently logged-in user
+            let currentUser = null;
             let selectedKhatianId = null;
+
+            // Initialize Choices.js dropdowns
+            const choiceOptions = {
+                searchEnabled: false,
+                shouldSort: false,
+                removeItemButton: true,
+                itemSelectText: '', 
+            };
+
+            const districtChoice = new Choices(districtFilterEl, {...choiceOptions, placeholder: true, placeholderValue: 'Select District' });
+            const upazilaChoice = new Choices(upazilaFilterEl, {...choiceOptions, placeholder: true, placeholderValue: 'Select Upazila' });
+            const mouzaChoice = new Choices(mouzaFilterEl, {...choiceOptions, placeholder: true, placeholderValue: 'Select Mouza' });
 
             // --- Functions ---
             const showView = (viewId) => {
@@ -333,24 +429,22 @@
                 if (pageId === 'homeView') homeBtn.classList.add('active');
                 if (pageId === 'entryStatusView') entryStatusBtn.classList.add('active');
             };
-
-            const populateDropdown = (selectElement, items, placeholder) => {
-                selectElement.innerHTML = `<option value="">${placeholder}</option>`;
-                items.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item;
-                    option.textContent = item;
-                    selectElement.appendChild(option);
-                });
+            
+            const setChoices = (choiceInstance, data, placeholder) => {
+                choiceInstance.clearStore();
+                choiceInstance.setChoices(
+                    [{ value: '', label: placeholder, selected: true, disabled: true }, ...data.map(item => ({ value: item, label: item }))],
+                    'value', 'label', false
+                );
             };
-
+            
             const renderKhatianTable = () => {
-                const division = divisionFilter.value;
-                const upazila = upazilaFilter.value;
-                const mouza = mouzaFilter.value;
+                const district = districtChoice.getValue(true);
+                const upazila = upazilaChoice.getValue(true);
+                const mouza = mouzaChoice.getValue(true);
                 const searchTerm = searchBox.value.toLowerCase();
 
-                if (!division || !upazila || !mouza) {
+                if (!district || !upazila || !mouza) {
                     khatianTable.classList.add('hidden');
                     tablePlaceholder.classList.remove('hidden');
                     khatianTableBody.innerHTML = '';
@@ -361,7 +455,7 @@
                 tablePlaceholder.classList.add('hidden');
 
                 let filteredData = khatianData.filter(k => 
-                    k.division === division && k.upazila === upazila && k.mouza === mouza &&
+                    k.district === district && k.upazila === upazila && k.mouza === mouza &&
                     (k.khatianNo.toLowerCase().includes(searchTerm) || (k.rsNo && k.rsNo.toLowerCase().includes(searchTerm)))
                 );
 
@@ -431,7 +525,7 @@
                 tableHtml += `</tbody>`;
                 entryStatusTable.innerHTML = tableHtml;
             };
-
+            
             const openModal = () => {
                 khatianForm.reset();
                 newKhatianModal.classList.remove('hidden');
@@ -454,11 +548,12 @@
             };
             
             const clearFilters = () => {
-                divisionFilter.value = '';
-                upazilaFilter.innerHTML = '';
-                upazilaFilter.disabled = true;
-                mouzaFilter.innerHTML = '';
-                mouzaFilter.disabled = true;
+                districtChoice.clearInput();
+                setChoices(districtChoice, Object.keys(geoData), 'Select District');
+                upazilaChoice.clearInput();
+                upazilaChoice.disable();
+                mouzaChoice.clearInput();
+                mouzaChoice.disable();
                 searchBox.value = '';
                 renderKhatianTable();
             };
@@ -471,7 +566,7 @@
             }
 
             // --- Initial Setup ---
-            populateDropdown(divisionFilter, Object.keys(geoData), 'Select Division');
+            setChoices(districtChoice, Object.keys(geoData), 'Select District');
             
             // --- Event Listeners ---
             showSignupBtn.addEventListener('click', () => showView('signupView'));
@@ -500,7 +595,6 @@
                 const userId = document.getElementById('signupUserId').value;
                 const password = document.getElementById('signupPassword').value;
 
-                // Validation
                 const userIdError = document.getElementById('userIdError');
                 const passwordError = document.getElementById('passwordError');
                 let isValid = true;
@@ -508,16 +602,13 @@
                 passwordError.classList.add('hidden');
 
                 if(userId.length < 3) {
-                    userIdError.classList.remove('hidden');
-                    isValid = false;
+                    userIdError.classList.remove('hidden'); isValid = false;
                 } 
                 if(password.length < 4) {
-                    passwordError.classList.remove('hidden');
-                    isValid = false;
+                    passwordError.classList.remove('hidden'); isValid = false;
                 }
                 if(users.some(u => u.userId === userId)) {
-                    alert('User ID already exists. Please choose another one.');
-                    isValid = false;
+                    alert('User ID already exists. Please choose another one.'); isValid = false;
                 }
                 if (!isValid) return;
 
@@ -534,38 +625,40 @@
                 showPage('entryStatusView');
             });
             
-            divisionFilter.addEventListener('change', () => {
-                const division = divisionFilter.value;
-                upazilaFilter.disabled = !division;
-                if (division) {
-                    populateDropdown(upazilaFilter, Object.keys(geoData[division] || {}), 'Select Upazila');
+            districtFilterEl.addEventListener('change', (event) => {
+                const district = event.detail.value;
+                upazilaChoice.clearStore();
+                mouzaChoice.clearStore();
+                mouzaChoice.disable();
+                if (district) {
+                    upazilaChoice.enable();
+                    setChoices(upazilaChoice, Object.keys(geoData[district] || {}), 'Select Upazila');
                 } else {
-                    upazilaFilter.innerHTML = '';
-                }
-                mouzaFilter.innerHTML = '';
-                mouzaFilter.disabled = true;
-                renderKhatianTable();
-            });
-
-            upazilaFilter.addEventListener('change', () => {
-                const division = divisionFilter.value;
-                const upazila = upazilaFilter.value;
-                mouzaFilter.disabled = !upazila;
-                if (upazila) {
-                    populateDropdown(mouzaFilter, geoData[division]?.[upazila] || [], 'Select Mouza');
-                } else {
-                    mouzaFilter.innerHTML = '';
+                    upazilaChoice.disable();
                 }
                 renderKhatianTable();
             });
 
-            mouzaFilter.addEventListener('change', renderKhatianTable);
+            upazilaFilterEl.addEventListener('change', (event) => {
+                const district = districtChoice.getValue(true);
+                const upazila = event.detail.value;
+                mouzaChoice.clearStore();
+                if (upazila && geoData[district]?.[upazila]) {
+                    mouzaChoice.enable();
+                    setChoices(mouzaChoice, geoData[district][upazila].length > 0 ? geoData[district][upazila] : ['Mouza X', 'Mouza Y'], 'Select Mouza');
+                } else {
+                    mouzaChoice.disable();
+                }
+                renderKhatianTable();
+            });
+
+            mouzaFilterEl.addEventListener('change', renderKhatianTable);
             searchBox.addEventListener('input', renderKhatianTable);
             clearFilterBtn.addEventListener('click', clearFilters);
 
             newKhatianBtn.addEventListener('click', () => {
-                 if (!divisionFilter.value || !upazilaFilter.value || !mouzaFilter.value) {
-                    alert('Please select Division, Upazila, and Mouza first.');
+                 if (!districtChoice.getValue(true) || !upazilaChoice.getValue(true) || !mouzaChoice.getValue(true)) {
+                    alert('Please select District, Upazila, and Mouza first.');
                     return;
                 }
                 showAlert();
@@ -578,16 +671,16 @@
             
             khatianForm.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const today = new Date().toISOString().slice(0, 10); // 2025-06-15
+                const today = new Date().toISOString().slice(0, 10);
                 const newKhatian = {
                     id: khatianData.length > 0 ? Math.max(...khatianData.map(k => k.id)) + 1 : 1,
                     khatianNo: document.getElementById('khatianNo').value,
                     rsNo: document.getElementById('rsNo').value,
                     revenue: document.getElementById('revenue').value,
                     remarks: document.getElementById('remarks').value,
-                    division: divisionFilter.value,
-                    upazila: upazilaFilter.value,
-                    mouza: mouzaFilter.value,
+                    district: districtChoice.getValue(true),
+                    upazila: upazilaChoice.getValue(true),
+                    mouza: mouzaChoice.getValue(true),
                     enteredBy: currentUser.userId,
                     entryDate: today
                 };
@@ -609,15 +702,16 @@
             });
 
             exportDataBtn.addEventListener('click', () => {
-                const division = divisionFilter.value;
-                const upazila = upazilaFilter.value;
-                const mouza = mouzaFilter.value;
-                if (!division || !upazila || !mouza) {
+                const district = districtChoice.getValue(true);
+                const upazila = upazilaChoice.getValue(true);
+                const mouza = mouzaChoice.getValue(true);
+
+                if (!district || !upazila || !mouza) {
                     alert('Please select criteria to export data.');
                     return;
                 }
                 const dataToExport = khatianData
-                    .filter(k => k.division === division && k.upazila === upazila && k.mouza === mouza)
+                    .filter(k => k.district === district && k.upazila === upazila && k.mouza === mouza)
                     .map(k => ({ 'Khatian No': k.khatianNo, 'RS No': k.rsNo, 'Revenue': k.revenue, 'Mouza': k.mouza, 'Upazila': k.upazila, 'Entered By': k.enteredBy, 'Date': k.entryDate }));
 
                 if(dataToExport.length === 0) {
@@ -626,7 +720,7 @@
                 const worksheet = XLSX.utils.json_to_sheet(dataToExport);
                 const workbook = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(workbook, worksheet, "Khatian Data");
-                XLSX.writeFile(workbook, `Khatian_Data_${division}_${upazila}_${mouza}.xlsx`);
+                XLSX.writeFile(workbook, `Khatian_Data_${district}_${upazila}_${mouza}.xlsx`);
             });
         });
     </script>
