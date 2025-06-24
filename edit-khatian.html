@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Khatian - Wide Layout</title>
+    
+    <style>
+        /* General Body and Container Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .container {
+            max-width: 1600px; /* Increased width */
+            margin: auto;
+            background: #fff;
+            padding: 25px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #1f2937;
+            text-align: center;
+            padding: 20px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        h2.section-header-fullwidth {
+           background-color: #155E95;
+           color: white;
+           text-align: center;
+           margin: -20px -15px 25px -15px;
+           padding: 15px;
+           border-top-left-radius: 8px;
+           border-top-right-radius: 8px;
+           border-bottom: none;
+           font-weight: normal;
+        }
+
+        /* Section Backgrounds and Layout */
+        .form-section {
+            border: 1px solid #e5e7eb;
+            padding: 20px 15px 25px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        #khatian-info-section { background-color: #9FB3DF; }
+        #owner-info-section { background-color: #D9EAFD; }
+        #dag-info-section { background-color: #D1D8C5; }
+        
+        /* Grids and Groups */
+        .form-grid-aligned, .owner-form-grid, .owner-form-grid-row2, .dag-form-grid {
+            display: grid;
+            gap: 15px;
+        }
+        .form-grid-aligned { grid-template-columns: repeat(5, 1fr); align-items: flex-start; }
+        .owner-form-grid { grid-template-columns: 0.5fr 2fr 1.5fr 2fr; margin-bottom: 15px; }
+        .owner-form-grid-row2 { grid-template-columns: 1.2fr repeat(5, 0.5fr) 2.8fr auto; }
+        .dag-form-grid { margin-bottom: 15px; }
+        .dag-form-grid.row1 { grid-template-columns: 0.5fr 1fr 1fr 1fr 1fr; }
+        .dag-form-grid.row2 { grid-template-columns: repeat(5, 1fr); }
+        .dag-form-grid.row3 { grid-template-columns: repeat(5, 0.5fr) 1fr 1fr 1.5fr auto; }
+        
+        .form-group { display: flex; flex-direction: column; }
+        .grid-col-span-2 { grid-column: span 2; }
+
+        label {
+            margin-bottom: 8px;
+            font-weight: normal;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        input, textarea, select {
+            padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 16px; width: 100%; box-sizing: border-box; height: 42px; transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        input:disabled { background-color: #f3f4f6; cursor: not-allowed; }
+        textarea { resize: vertical; }
+        
+        /* Buttons */
+        .save-button, .checked-button, .owner-add-btn, .owner-update-btn, .entry-pannel-btn, .dag-add-btn, .dag-update-btn {
+            height: 42px; display: inline-flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: normal; border: none; padding: 0 25px; transition: all 0.3s ease;
+        }
+        .save-button { background-color: #2563eb; color: #fff; white-space: nowrap; }
+        .checked-button-wrapper { display: flex; align-items: center; gap: 10px; }
+        #checkButtonCheckbox { width: 20px; height: 20px; }
+        .checked-button { background-color: #e5e7eb; color: #1f2937; padding: 0 15px; }
+        .checked-button.green { background-color: #16a34a; color: #fff; }
+        .combined-buttons-cell { display: flex; align-items: flex-end; justify-content: flex-end; gap: 15px; height: 100%; }
+
+        /* Panel Specific Styles */
+        .pannel-controls { display: flex; justify-content: center; transition: justify-content 0.4s ease; }
+        .pannel-controls.active { justify-content: flex-start; }
+        .entry-pannel-btn { background-color: #7c3aed; color: white; }
+        .entry-pannel-btn:hover { background-color: #6d28d9; }
+        .owner-add-btn, .owner-update-btn, .dag-add-btn, .dag-update-btn { padding: 0 20px; width: auto; }
+        .owner-add-btn, .dag-add-btn { background-color: #16a34a; color: #fff; }
+        .owner-update-btn, .dag-update-btn { background-color: #f59e0b; color: #fff; }
+        
+        .owner-entry-pannel, .dag-entry-pannel { display: none; margin-top: 20px; }
+        .owner-entry-pannel.active, .dag-entry-pannel.active { display: block; }
+        
+        /* Table Styles */
+        .data-table-container {
+            margin-top: 25px; display: none; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: auto;
+        }
+        .data-table-container.active { display: block; }
+        .list-table { width: 100%; border-collapse: collapse; }
+        .list-table th, .list-table td {
+            padding: 8px 10px;
+            text-align: center;
+            border: 1px solid #d1d5db;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .list-table th {
+            background-color: #51829B;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+        .list-table tbody tr:nth-child(3n + 1) { background-color: #EBF4F6; }
+        .list-table tbody tr:nth-child(3n + 2) { background-color: #FBFBFB; }
+        .list-table tbody tr:nth-child(3n + 3) { background-color: #C4D9FF; }
+
+        .action-icons { display: flex; gap: 10px; justify-content: center; }
+        .action-icons .action-btn {
+            display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; border: none; cursor: pointer; font-size: 16px; transition: all 0.2s ease;
+        }
+        .action-icons .edit-btn { background-color: #dcfce7; color: #166534; }
+        .action-icons .edit-btn:hover { background-color: #22c55e; color: white; }
+        .action-icons .delete-btn { background-color: #fee2e2; color: #991b1b; }
+        .action-icons .delete-btn:hover { background-color: #ef4444; color: white; }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Edit Khatian</h1>
+
+        <div class="form-section" id="khatian-info-section">
+            <h2 class="section-header-fullwidth">Khatian Information</h2>
+            <form id="khatianForm" novalidate>
+                <div class="form-grid-aligned">
+                    <div class="form-group"><label for="district">District Name</label><input type="text" id="district" name="district" value="ঢাকা" disabled></div>
+                    <div class="form-group"><label for="upazila">Upazila Name</label><input type="text" id="upazila" name="upazila" value="গুলশান" disabled></div>
+                    <div class="form-group"><label for="mouza">Mouza Name</label><input type="text" id="mouza" name="mouza" value="বারিধারা" disabled></div>
+                    <div class="form-group"><label for="jl_no">JL No</label><input type="text" id="jl_no"></div>
+                    <div class="form-group"><label for="dag_no">Dag number</label><input type="number" id="dag_no" class="numeric-only"></div>
+                    <div class="form-group"><label for="rs_no">RS No</label><input type="text" id="rs_no"></div>
+                    <div class="form-group"><label for="revenue">Revenue</label><input type="text" id="revenue" class="numeric-only"></div>
+                    <div class="form-group grid-col-span-2"><label for="remarks">Remarks</label><textarea id="remarks"></textarea></div>
+                    <div class="combined-buttons-cell"><button type="submit" class="save-button">Save Khatian</button><div class="checked-button-wrapper"><input type="checkbox" id="checkButtonCheckbox"><button type="button" id="checkedButton" class="checked-button">Checked</button></div></div>
+                </div>
+            </form>
+        </div>
+
+        <div class="form-section" id="owner-info-section">
+            <h2 class="section-header-fullwidth">Owner Information</h2>
+            <div class="pannel-controls" id="ownerPannelControls">
+                <button type="button" class="entry-pannel-btn" id="toggleOwnerPannelBtn">Entry Pannel</button>
+            </div>
+            <div class="owner-entry-pannel" id="ownerEntryPannel">
+                <form id="ownerEntryForm">
+                    <div class="owner-form-grid">
+                        <div class="form-group"><label for="ownerSerial">Serial</label><input type="text" id="ownerSerial" value="1" disabled></div>
+                        <div class="form-group"><label for="ownerName">Owner Name</label><input type="text" id="ownerName" required></div>
+                        <div class="form-group"><label for="ownerCareOf">Care of</label><input type="text" id="ownerCareOf"></div>
+                        <div class="form-group"><label for="ownerAddress">Address</label><input type="text" id="ownerAddress"></div>
+                    </div>
+                    <div class="owner-form-grid-row2">
+                        <div class="form-group"><label for="ownerPart">Owner Part</label><input type="text" id="ownerPart" disabled></div>
+                        <div class="form-group"><label for="ownerAna">Ana</label><input type="number" id="ownerAna" class="numeric-only"></div>
+                        <div class="form-group"><label for="ownerGonda">Gonda</label><input type="number" id="ownerGonda" class="numeric-only"></div>
+                        <div class="form-group"><label for="ownerKora">Kora</label><input type="number" id="ownerKora" class="numeric-only"></div>
+                        <div class="form-group"><label for="ownerKranti">Kranti</label><input type="number" id="ownerKranti" class="numeric-only"></div>
+                        <div class="form-group"><label for="ownerTil">Til</label><input type="number" id="ownerTil" class="numeric-only"></div>
+                        <div class="form-group"><label for="ownerRemarks">Remarks</label><input type="text" id="ownerRemarks"></div>
+                        <div class="form-group" style="justify-content: flex-end;"><button type="submit" class="owner-add-btn" id="ownerAddBtn">Add</button></div>
+                    </div>
+                </form>
+            </div>
+            <div class="data-table-container" id="ownerTableContainer">
+                <table class="list-table">
+                    <thead>
+                        <tr><th>Actions</th><th>Serial</th><th>Owner Name</th><th>Care of</th><th>Address</th><th>Owner Part</th><th>Remarks</th></tr>
+                    </thead>
+                    <tbody id="ownerTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="form-section" id="dag-info-section">
+            <h2 class="section-header-fullwidth">Dag Information</h2>
+            <div class="pannel-controls" id="dagPannelControls">
+                <button type="button" class="entry-pannel-btn" id="toggleDagPannelBtn">Entry Pannel</button>
+            </div>
+            <div class="dag-entry-pannel" id="dagEntryPannel">
+                <form id="dagEntryForm">
+                    <div class="dag-form-grid row1">
+                        <div class="form-group"><label for="dagSerial">Serial</label><input type="text" id="dagSerial" value="1" disabled></div>
+                        <div class="form-group"><label for="dagNo">Dag No</label><input type="number" id="dagNo" class="numeric-only" required></div>
+                        <div class="form-group"><label for="dagBattaNo">Batta Dag No</label><input type="number" id="dagBattaNo" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagAgri">Agri</label><input type="text" id="dagAgri"></div>
+                        <div class="form-group"><label for="dagNonAgri">Non Agri</label><input type="text" id="dagNonAgri"></div>
+                    </div>
+                    <div class="dag-form-grid row2">
+                        <div class="form-group"><label for="dagTotalAcre">Dag Total (Acre)</label><input type="number" id="dagTotalAcre" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagTotalDecimal">Dag Total (Decimal)</label><input type="number" id="dagTotalDecimal" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagKhatianPart">Khatian Part</label><input type="text" id="dagKhatianPart" disabled></div>
+                        <div class="form-group"><label for="dagKhatianPartAcre">Khatian Part (Acre)</label><input type="number" id="dagKhatianPartAcre" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagKhatianPartDecimal">Khatian Part (Decimal)</label><input type="number" id="dagKhatianPartDecimal" class="numeric-only"></div>
+                    </div>
+                    <div class="dag-form-grid row3">
+                        <div class="form-group"><label for="dagAna">Ana</label><input type="number" id="dagAna" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagGonda">Gonda</label><input type="number" id="dagGonda" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagKora">Kora</label><input type="number" id="dagKora" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagKranti">Kranti</label><input type="number" id="dagKranti" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagTil">Til</label><input type="number" id="dagTil" class="numeric-only"></div>
+                        <div class="form-group"><label for="dagAreaType">Dag Area</label><select id="dagAreaType"><option value="Full">Full</option><option value="Part">Part</option></select></div>
+                        <div class="form-group"><label for="dagOwnerType">Owner</label><select id="dagOwnerType"><option value="Govt.">Govt.</option><option value="Pvt.">Pvt.</option></select></div>
+                        <div class="form-group"><label for="dagRemarks">Remarks</label><input type="text" id="dagRemarks"></div>
+                        <div class="form-group" style="justify-content: flex-end;"><button type="submit" class="dag-add-btn" id="dagAddBtn">Add</button></div>
+                    </div>
+                </form>
+            </div>
+            <div class="data-table-container" id="dagTableContainer">
+                <table class="list-table">
+                    <thead>
+                        <tr>
+                            <th>Action</th>
+                            <th>Serial</th>
+                            <th>Dag No</th>
+                            <th>Agriculture</th>
+                            <th>Non Agriculture</th>
+                            <th>Dag total (Acre)</th>
+                            <th>Dag total (Decimal)</th>
+                            <th>Khatian Part</th>
+                            <th>Khatian Part (Acre)</th>
+                            <th>Khatian Part (Decimal)</th>
+                            <th>Dag type</th>
+                            <th>owner type</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dagTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // Khatian Checkbox Logic
+        const checkButtonCheckbox = document.getElementById('checkButtonCheckbox');
+        const checkedButton = document.getElementById('checkedButton');
+        if (checkButtonCheckbox && checkedButton) {
+            checkButtonCheckbox.addEventListener('change', function() {
+                checkedButton.classList.toggle('green', this.checked);
+            });
+        }
+
+        // Generic CRUD Panel Factory Function
+        function setupCrudPanel(config) {
+            const toggleBtn = document.getElementById(config.toggleBtnId);
+            const pannelControls = document.getElementById(config.pannelControlsId);
+            const entryPannel = document.getElementById(config.entryPannelId);
+            const tableContainer = document.getElementById(config.tableContainerId);
+            const form = document.getElementById(config.formId);
+            const addBtn = document.getElementById(config.addBtnId);
+            const tableBody = document.getElementById(config.tableBodyId);
+            const serialInput = document.getElementById(config.serialInputId);
+            const focusInput = document.getElementById(config.focusInputId);
+            const partLockedDisplay = form.querySelector('input[id*="Part"][disabled]');
+
+            let editingRow = null;
+
+            toggleBtn.addEventListener('click', () => {
+                const isActive = entryPannel.classList.toggle('active');
+                pannelControls.classList.toggle('active');
+                toggleBtn.textContent = isActive ? 'Hide Pannel' : 'Entry Pannel';
+                if (isActive) focusInput.focus();
+                if (!isActive && editingRow) resetForm();
+            });
+
+            if (config.partInputs) {
+                const partValueInputs = Object.values(config.partInputs);
+                const updatePartDisplay = () => {
+                    if (!partLockedDisplay) return;
+                    const data = {};
+                    Object.entries(config.partInputs).forEach(([key, input]) => data[key] = input.value);
+                    partLockedDisplay.value = config.getPartDisplayValue(data);
+                };
+                partValueInputs.forEach(input => input.addEventListener('input', updatePartDisplay));
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                if (focusInput.value.trim() === '') {
+                    alert(`${focusInput.labels[0].textContent} is required.`);
+                    focusInput.focus();
+                    return;
+                }
+                if (editingRow) {
+                    updateRow(editingRow);
+                } else {
+                    addNewRow();
+                }
+                resetForm();
+            });
+            
+            tableBody.addEventListener('click', function(e) {
+                const targetRow = e.target.closest('tr');
+                if (!targetRow) return;
+
+                if (e.target.closest('.edit-btn')) {
+                    editingRow = targetRow;
+                    let data = { ...targetRow.dataset };
+                    
+                    serialInput.value = data.serial;
+                    config.populateFormForEdit(form, data);
+
+                    if(config.partInputs) {
+                       Object.entries(config.partInputs).forEach(([key, input]) => {
+                            input.value = data[key] === '0' ? '' : data[key];
+                        });
+                        if (partLockedDisplay) {
+                            partLockedDisplay.value = config.getPartDisplayValue({ ...targetRow.dataset });
+                        }
+                    }
+
+                    addBtn.textContent = 'Update';
+                    addBtn.classList.add(`${config.addBtnId.replace('AddBtn','-update-btn')}`);
+                    if (!entryPannel.classList.contains('active')) {
+                        toggleBtn.click();
+                    }
+                    window.scrollTo(0, entryPannel.offsetTop);
+                    focusInput.focus();
+                }
+
+                if (e.target.closest('.delete-btn')) {
+                    if (confirm(`Are you sure you want to delete row #${targetRow.dataset.serial}?`)) {
+                        const isEditingThisRow = editingRow === targetRow;
+                        targetRow.remove();
+                        checkTableVisibility();
+                        if (isEditingThisRow) {
+                            resetForm();
+                        } else {
+                            if (!editingRow) calculateNextSerial();
+                        }
+                    }
+                }
+            });
+
+            function addNewRow() {
+                const newRow = tableBody.insertRow();
+                saveDataToRow(newRow);
+                checkTableVisibility();
+            }
+
+            function updateRow(row) {
+                saveDataToRow(row);
+            }
+            
+            function saveDataToRow(row) {
+                const data = config.getFormValues(form);
+                data.serial = serialInput.value;
+                if (config.partInputs) {
+                    Object.entries(config.partInputs).forEach(([key, input]) => {
+                        data[key] = input.value || 0;
+                    });
+                }
+                
+                Object.entries(data).forEach(([key, value]) => {
+                    row.dataset[key] = value;
+                });
+                
+                const partDisplayValue = config.getPartDisplayValue(data);
+                config.updateRowContent(row, data, partDisplayValue);
+            }
+            
+            function calculateNextSerial() {
+                const allSerials = Array.from(tableBody.rows).map(r => parseInt(r.dataset.serial, 10));
+                const maxSerial = allSerials.length > 0 ? Math.max(...allSerials) : 0;
+                serialInput.value = maxSerial + 1;
+            }
+
+            function resetForm() {
+                form.reset();
+                if(partLockedDisplay) partLockedDisplay.value = '';
+                focusInput.focus();
+                
+                editingRow = null;
+                addBtn.textContent = 'Add';
+                const baseBtnClass = config.addBtnId.replace('AddBtn', '-add-btn');
+                addBtn.className = baseBtnClass;
+                
+                calculateNextSerial();
+            }
+            
+            function checkTableVisibility() {
+                if (tableBody.rows.length === 0) {
+                    tableContainer.classList.remove('active');
+                } else {
+                    tableContainer.classList.add('active');
+                }
+            }
+        }
+
+        // Initialize Owner Panel
+        setupCrudPanel({
+            toggleBtnId: 'toggleOwnerPannelBtn', pannelControlsId: 'ownerPannelControls', entryPannelId: 'ownerEntryPannel', tableContainerId: 'ownerTableContainer', formId: 'ownerEntryForm', addBtnId: 'ownerAddBtn', tableBodyId: 'ownerTableBody', serialInputId: 'ownerSerial', focusInputId: 'ownerName',
+            partInputs: { ana: document.getElementById('ownerAna'), gonda: document.getElementById('ownerGonda'), kora: document.getElementById('ownerKora'), kranti: document.getElementById('ownerKranti'), til: document.getElementById('ownerTil') },
+            getFormValues: (form) => ({ name: form.querySelector('#ownerName').value, careof: form.querySelector('#ownerCareOf').value, address: form.querySelector('#ownerAddress').value, remarks: form.querySelector('#ownerRemarks').value }),
+            getPartDisplayValue: (data) => [
+                parseFloat(data.ana) > 0 ? `${data.ana} Ana` : '', parseFloat(data.gonda) > 0 ? `${data.gonda} Gonda` : '', parseFloat(data.kora) > 0 ? `${data.kora} Kora` : '', parseFloat(data.kranti) > 0 ? `${data.kranti} Kranti` : '', parseFloat(data.til) > 0 ? `${data.til} Til` : ''
+            ].filter(Boolean).join(' '),
+            populateFormForEdit: (form, data) => { form.querySelector('#ownerName').value = data.name; form.querySelector('#ownerCareOf').value = data.careof; form.querySelector('#ownerAddress').value = data.address; form.querySelector('#ownerRemarks').value = data.remarks; },
+            updateRowContent: (row, data, partDisplayValue) => {
+                row.innerHTML = `<td><div class="action-icons"><button class="action-btn edit-btn" title="Edit">🖊️</button><button class="action-btn delete-btn" title="Delete">🗑️</button></div></td>
+                    <td>${data.serial}</td><td>${data.name}</td><td>${data.careof}</td><td>${data.address}</td><td>${partDisplayValue || '0'}</td><td>${data.remarks}</td>`;
+            }
+        });
+
+        // Initialize Dag Panel
+        setupCrudPanel({
+            toggleBtnId: 'toggleDagPannelBtn', pannelControlsId: 'dagPannelControls', entryPannelId: 'dagEntryPannel', tableContainerId: 'dagTableContainer', formId: 'dagEntryForm', addBtnId: 'dagAddBtn', tableBodyId: 'dagTableBody', serialInputId: 'dagSerial', focusInputId: 'dagNo',
+            partInputs: { ana: document.getElementById('dagAna'), gonda: document.getElementById('dagGonda'), kora: document.getElementById('dagKora'), kranti: document.getElementById('dagKranti'), til: document.getElementById('dagTil') },
+            getFormValues: (form) => ({
+                dagNo: form.querySelector('#dagNo').value, battaDagNo: form.querySelector('#dagBattaNo').value, agri: form.querySelector('#dagAgri').value, nonAgri: form.querySelector('#dagNonAgri').value, totalAcre: form.querySelector('#dagTotalAcre').value, totalDecimal: form.querySelector('#dagTotalDecimal').value, khatianPartAcre: form.querySelector('#dagKhatianPartAcre').value, khatianPartDecimal: form.querySelector('#dagKhatianPartDecimal').value, areaType: form.querySelector('#dagAreaType').value, ownerType: form.querySelector('#dagOwnerType').value, remarks: form.querySelector('#dagRemarks').value
+            }),
+            getPartDisplayValue: (data) => [
+                parseFloat(data.ana) > 0 ? `${data.ana} Ana` : '', parseFloat(data.gonda) > 0 ? `${data.gonda} Gonda` : '', parseFloat(data.kora) > 0 ? `${data.kora} Kora` : '', parseFloat(data.kranti) > 0 ? `${data.kranti} Kranti` : '', parseFloat(data.til) > 0 ? `${data.til} Til` : ''
+            ].filter(Boolean).join(' '),
+            populateFormForEdit: (form, data) => {
+                form.querySelector('#dagNo').value = data.dagNo; form.querySelector('#dagBattaNo').value = data.battaDagNo; form.querySelector('#dagAgri').value = data.agri; form.querySelector('#dagNonAgri').value = data.nonAgri; form.querySelector('#dagTotalAcre').value = data.totalAcre; form.querySelector('#dagTotalDecimal').value = data.totalDecimal; form.querySelector('#dagKhatianPartAcre').value = data.khatianPartAcre; form.querySelector('#dagKhatianPartDecimal').value = data.khatianPartDecimal; form.querySelector('#dagAreaType').value = data.areaType; form.querySelector('#dagOwnerType').value = data.ownerType; form.querySelector('#dagRemarks').value = data.remarks;
+            },
+            updateRowContent: (row, data, partDisplayValue) => {
+                row.innerHTML = `
+                    <td><div class="action-icons"><button class="action-btn edit-btn" title="Edit">🖊️</button><button class="action-btn delete-btn" title="Delete">🗑️</button></div></td>
+                    <td>${data.serial}</td><td>${data.dagNo}</td><td>${data.agri}</td><td>${data.nonAgri}</td><td>${data.totalAcre}</td>
+                    <td>${data.totalDecimal}</td><td>${partDisplayValue || '0'}</td><td>${data.khatianPartAcre}</td><td>${data.khatianPartDecimal}</td>
+                    <td>${data.areaType}</td><td>${data.ownerType}</td><td>${data.remarks}</td>`;
+            }
+        });
+
+        // Attach number-only validation to specified inputs
+        const numericInputs = document.querySelectorAll('.numeric-only');
+        const enforceNumericInput = function(e) {
+            e.target.value = e.target.value.replace(/[^\d.]/g, '').replace(/(\..*?)\..*/g, '$1');
+        };
+        numericInputs.forEach(input => {
+            input.addEventListener('input', enforceNumericInput);
+        });
+
+    });
+    </script>
+</body>
+</html>
